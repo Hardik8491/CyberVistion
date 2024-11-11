@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Detection System - Threats List</title>
+
+</head>
+
+<body>
+    <h1>Threats List</h1>
+
+    {% if threats %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Source IP</th>
+                    <th>Destination IP</th>
+                    <th>Protocol</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for threat in threats %}
+                    <tr>
+                        <td>{{ threat.id }}</td>
+                        <td>{{ threat.src_ip }}</td>
+                        <td>{{ threat.dst_ip }}</td>
+                        <td>{{ threat.protocol }}</td>
+                        <td>{{ threat.timestamp }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No threats detected yet.</p>
+    {% endif %}
+</body>
+</html>
