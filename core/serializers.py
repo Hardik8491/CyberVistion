@@ -1,6 +1,6 @@
 # core/serializers.py
 from rest_framework import serializers
-from .models import NetworkLog, MaintenanceRecord, ThreatLog
+from .models import NetworkLog, MaintenanceRecord, Threat, ThreatLog
 
 class NetworkLogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +16,9 @@ class ThreatLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ThreatLog
         fields = '__all__'
+
+
+class ThreatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Threat
+        fields = ['src_ip', 'dst_ip', 'protocol']

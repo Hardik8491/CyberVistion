@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Example</title>
+</head>
+<body>
+    <h1>WebSocket Connection</h1>
+
+    <!-- Display messages received from WebSocket server -->
+    <div id="message-container"></div>
+
+    <!-- Button to send message to WebSocket server -->
+    <button onclick="sendMessage()">Send Message to Server</button>
+
+    <script>
+        // Establish a WebSocket connection to the server
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/server/');
+
+        // Event listener for when the WebSocket connection opens
+        socket.onopen = function() {
+            console.log("WebSocket connection established.");
+            addMessage("Connected to WebSocket server.");
+        };
+
+        // Event listener for receiving messages from the server
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log("Received message:", data.message);
+            addMessage("Server: " + data.message);
+        };
+
+        // Event listener for when the WebSocket connection closes
+        socket.onclose = function() {
+            console.log("WebSocket connection closed.");
+            addMessage("Disconnected from WebSocket server.");
+        };
+
+        // Send a message to the WebSocket server
+        function sendMessage() {
+            const message = { message: 'Hello, Server!' };
+            socket.send(JSON.stringify(message));
+            console.log("Sent message:", message.message);
+            addMessage("You: " + message.message);
+        }
+
+        // Utility function to display messages on the page
+        function addMessage(message) {
+            const messageContainer = document.getElementById('message-container');
+            const messageElement = document.createElement('p');
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+        }
+    </script>
+</body>
+</html>

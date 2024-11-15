@@ -1,12 +1,459 @@
-<!-- templates/home.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
-    <h1>Welcome to the Threat Detection System</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to ThreatVision System</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f4f8;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        line-height: 1.6;
+      }
 
-</body>
+      header {
+        background-color: #1a237e;
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 300;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
+      .endpoints {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .endpoint {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .endpoint:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .endpoint h2 {
+        margin: 0 0 1rem;
+        font-size: 1.25rem;
+        color: #1a237e;
+      }
+
+      .endpoint p {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1rem;
+      }
+
+      .endpoint-code {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 0.75rem;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.9rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .method-tag {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: white;
+        border-radius: 4px;
+        text-transform: uppercase;
+      }
+
+      .method-tag.get {
+        background-color: #4caf50;
+      }
+      .method-tag.post {
+        background-color: #2196f3;
+      }
+      .method-tag.put {
+        background-color: #ff9800;
+      }
+      .method-tag.delete {
+        background-color: #f44336;
+      }
+      .method-tag.options {
+        background-color: #9c27b0;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        background-color: #e9ecef;
+        border: none;
+        border-radius: 4px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .copy-btn:hover {
+        background-color: #ced4da;
+      }
+
+      .endpoint-link {
+        color: #1a237e;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .endpoint-link:hover {
+        color: #3f51b5;
+        text-decoration: underline;
+      }
+
+      footer {
+        text-align: center;
+        padding: 1rem;
+        background-color: #1a237e;
+        color: white;
+        font-size: 0.9rem;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to the ThreatVision System</h1>
+    </header>
+
+    <main>
+      <div class="endpoints">
+        <div class="endpoint">
+          <h2>Create Threat</h2>
+          <p>Endpoint to create a new threat.</p>
+          <div class="endpoint-code">
+            <span class="method-tag post">POST</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/create-threat/')"
+              >/create-threat/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>View Threats</h2>
+          <p>Endpoint to view all the threats.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/threats/')"
+              >/threats/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Real-time Data</h2>
+          <p>Endpoint to fetch real-time data for the system.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/real-time-data/')"
+              >/real-time-data/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Generate Report</h2>
+          <p>Endpoint to generate a report based on the type.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/generate-report/{report_type}/')"
+              >/generate-report/{report_type}/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Maintenance Prediction</h2>
+          <p>Endpoint for predicting maintenance needs for the system.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/maintenance-prediction/')"
+              >/maintenance-prediction/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Fetch Threat Data</h2>
+          <p>Fetch threat data for analysis.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/fetch-threat-data/')"
+              >/fetch-threat-data/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Incident Response</h2>
+          <p>Endpoint for handling incident responses.</p>
+          <div class="endpoint-code">
+            <span class="method-tag post">POST</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/incident-response/')"
+              >/incident-response/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Vulnerability Analysis</h2>
+          <p>Endpoint to perform vulnerability analysis on the system.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/vulnerability-analysis/')"
+              >/vulnerability-analysis/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Visualize Data</h2>
+          <p>Endpoint to visualize data with charts and graphs.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/visualize-data/')"
+              >/visualize-data/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Network Logs</h2>
+          <p>View the network logs to identify anomalies.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/network-logs/')"
+              >/network-logs/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Maintenance Records</h2>
+          <p>View past maintenance records.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/maintenance-records/')"
+              >/maintenance-records/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Traffic Analysis</h2>
+          <p>Endpoint for traffic analysis to identify potential threats.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/traffic-analysis/')"
+              >/traffic-analysis/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Generate Threat Report</h2>
+          <p>Generate a report on the identified threats.</p>
+          <div class="endpoint-code">
+            <span class="method-tag post">POST</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/generate-threat-report/')"
+              >/generate-threat-report/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Evaluate Risk</h2>
+          <p>Evaluate the risk based on the threat data.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/evaluate-risk/')"
+              >/evaluate-risk/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Predict</h2>
+          <p>Endpoint to make predictions based on the threat data.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/predict/')"
+              >/predict/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h2>Threat Logs</h2>
+          <p>Fetch logs related to the detected threats.</p>
+          <div class="endpoint-code">
+            <span class="method-tag get">GET</span>
+            <a
+              href="#"
+              class="endpoint-link"
+              onclick="openEndpoint('/threat-logs/')"
+              >/threat-logs/</a
+            >
+            <button class="copy-btn" onclick="copyToClipboard(this)">
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 ThreatVision System. All rights reserved.</p>
+    </footer>
+
+    <script>
+      function copyToClipboard(button) {
+        const codeElement = button.parentElement;
+        const codeText = codeElement
+          .querySelector(".endpoint-link")
+          .textContent.trim();
+
+        navigator.clipboard
+          .writeText(codeText)
+          .then(() => {
+            button.textContent = "Copied!";
+            setTimeout(() => {
+              button.textContent = "Copy";
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+          });
+      }
+
+      function openEndpoint(endpoint) {
+        // This function would typically navigate to the endpoint or open it in a new tab
+        // For demonstration purposes, we'll just log it to the console
+        console.log("Opening endpoint:", endpoint);
+        alert("Opening endpoint: " + endpoint);
+        // Prevent the default link behavior
+        return false;
+      }
+    </script>
+  </body>
 </html>

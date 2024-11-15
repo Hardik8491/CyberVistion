@@ -1,10 +1,16 @@
+from datetime import datetime
 import pickle
+import django
 import pandas as pd
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import os
+from django.db import IntegrityError
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+import platform
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import NetworkLog, MaintenanceRecord, Threat, ThreatLog
@@ -33,6 +39,113 @@ from .services import (
 
 # views.py
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'cybervision_ai', 'models')
+
+
+
+from django.http import JsonResponse
+
+
+def server(request):
+    return render(request, 'connect.html')
+
+
+def welcome(request):
+    # Extract the client's IP address
+    ip_address = request.META.get('REMOTE_ADDR', None)
+    
+    # Get the current server time
+    server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Get the User-Agent from the request headers (used to infer device/browser)
+    user_agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
+    
+    # Get the request method (GET/POST)
+    request_method = request.method
+    
+    # Extract the host from the request headers
+    host = request.META.get('HTTP_HOST', 'Unknown')
+    
+    # Get the referrer (if exists) and origin (if exists)
+    referrer = request.META.get('HTTP_REFERER', 'None')
+    origin = request.META.get('HTTP_ORIGIN', 'None')
+    
+    # Get the request path (URL) and query parameters
+    request_path = request.path
+    query_params = request.GET.dict()
+    
+    # Content type of the request (if exists)
+    content_type = request.META.get('CONTENT_TYPE', 'Unknown')
+    
+    # Get the platform details (OS and Architecture)
+    system_info = platform.platform()
+    
+    # Session ID if using Django sessions
+    session_id = request.session.session_key if request.session.session_key else "No session"
+
+    # Get request headers like Accept-Language, Accept-Encoding, etc.
+    accept_language = request.META.get('HTTP_ACCEPT_LANGUAGE', 'None')
+    accept_encoding = request.META.get('HTTP_ACCEPT_ENCODING', 'None')
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', 'None')
+    
+    # Get cookies sent with the request
+    cookies = request.COOKIES
+    
+    # Django settings and version
+    django_version = django.get_version()
+    environment = 'Development' if settings.DEBUG else 'Production'
+    
+    # Record request start time for performance measurement
+    start_time = datetime.now()
+    
+    # Handle POST requests by getting the request body if it's not empty
+    request_body = None
+    if request.method == 'POST':
+        try:
+            request_body = json.loads(request.body)
+        except json.JSONDecodeError:
+            request_body = "Invalid JSON body"
+    
+    # Calculate the time taken to process the request
+    processing_time = (datetime.now() - start_time).total_seconds()
+
+    # User Authentication Info (if available)
+    if request.user.is_authenticated:
+        user_info = {
+            "username": request.user.username,
+            "email": request.user.email,
+            "is_staff": request.user.is_staff,
+            "is_superuser": request.user.is_superuser
+        }
+    else:
+        user_info = "User not authenticated"
+
+    # Create the response data with all gathered information
+    response_data = {
+        "message": "Welcome to CyberVision",
+        "ip_address": ip_address,
+        "server_time": server_time,
+        "user_agent": user_agent,
+        "request_method": request_method,
+        "host": host,
+        "referrer": referrer,
+        "origin": origin,
+        "request_path": request_path,
+        "query_params": query_params,
+        "content_type": content_type,
+        "system_info": system_info,
+        "session_id": session_id,
+        "accept_language": accept_language,
+        "accept_encoding": accept_encoding,
+        "x_forwarded_for": x_forwarded_for,
+        "cookies": cookies,
+        "django_version": django_version,
+        "environment": environment,
+        "processing_time_seconds": processing_time,
+        "request_body": request_body,
+        "user_info": user_info
+    }
+
+    return JsonResponse(response_data)
 
 def load_model(model_name):
     """Loads a model from the models directory."""
@@ -81,13 +194,31 @@ def home(request):
 @csrf_exempt
 def create_threat(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        src_ip = data.get('src_ip')
-        dst_ip = data.get('dst_ip')
-        protocol = data.get('protocol')
+        try:
+            data = json.loads(request.body)
+            src_ip = data.get('src_ip')
+            dst_ip = data.get('dst_ip')
+            protocol = data.get('protocol')
 
-        threat = Threat.objects.create(src_ip=src_ip, dst_ip=dst_ip, protocol=protocol)
-        return JsonResponse({"message": "Threat logged successfully", "threat_id": threat.id}, status=201)
+            # Create threat
+            threat = Threat.objects.create(src_ip=src_ip, dst_ip=dst_ip, protocol=protocol)
+            threat_id = threat.id
+
+            # Send a message to WebSocket clients
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                'threats_group',  # Group name
+                {
+                    'type': 'threat_message',  # This will call the 'threat_message' method in consumer
+                    'message': f'New threat logged: {src_ip} -> {dst_ip} using {protocol}.'
+                }
+            )
+
+            return JsonResponse({"message": "Threat logged successfully", "threat_id": threat_id}, status=201)
+        except IntegrityError:
+            return JsonResponse({"error": "Data integrity error"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 def view_threats(request):
@@ -260,7 +391,11 @@ class ThreatLogView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def custom_404_view(request, exception=None):
-        return render(request, '404.html', status=404)
 
+def custom_404(request, exception=None):
+    # If it's an API route, return a JSON error
+    if request.path.startswith('/api/'):  # API path condition
+        return JsonResponse({'error': 'Page not found', 'message': 'The requested API endpoint does not exist.'}, status=404)
+    
+    # For non-API routes, render a custom HTML 404 page
+    return render(request, '404.html', status=404)

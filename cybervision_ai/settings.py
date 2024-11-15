@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     # Other apps
     'core',
     'rest_framework',
-    # Django apps
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,6 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'cybervision_ai.wsgi.application'
+ASGI_APPLICATION = "cybervision_ai.asgi.application"
 
 # Database Configuration (using PostgreSQL for production)
 DATABASES = {
@@ -112,6 +113,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -162,4 +166,3 @@ TEMPLATES = [
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
 
-# Other custom settings

@@ -13,6 +13,7 @@ from .views import (
     MaintenanceRecordView,
     create_threat,
     home,
+    server,
     traffic_analysis_view,
     generate_threat_report,
     evaluate_threat_risk,
@@ -20,11 +21,13 @@ from .views import (
     view_threats,
 
 )
+handler404 = 'core.views.custom_404_view'
 
 urlpatterns = [
     path('create-threat/', create_threat, name='create_threat'),
     path('threats/', view_threats, name='view-threats'),
     path('', home, name='home'),  # The home view
+    path('server/', server, name='server'),
     # Real-time data endpoint
     path('real-time-data/', RealTimeDataView.as_view(), name='real-time-data'),
     
@@ -67,4 +70,3 @@ urlpatterns = [
     path('threat-logs/', ThreatLogView.as_view(), name='threat-logs'),
 ]
 
-handler404 = 'core.views.custom_404_view'
